@@ -3,12 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <title>Tutorial Demo</title>
+  <style>
+    .exportbtn{
+      padding: 10px 15px;
+      border: solid black 1px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+    }
+  </style>
+  <script defer>let test="test"</script>
 </head>
+
 <body>
   <div id="container" style="height: 1500;"></div>
+  <div id="mydata"></div>
 
 <script src="https://gw.alipayobjects.com/os/lib/antv/g6/4.6.4/dist/g6.min.js"></script>
 <script>
+
+
+let btn = false
 
 const {
   Util
@@ -40,64 +55,10 @@ const colorArr = [
 const rawData = {
   label: '学校',
   id: '0',
-  children: [{
-      label: '幼儿园',
-      id: '0-1',
-      color: '#5AD8A6',
-      children: [{
-          label: '小班',
-          id: '0-1-1',
-        },
-        {
-          label: '中班',
-          id: '0-1-2',
-        },
-      ],
-    },
-    {
-      label: '小学',
-      id: '0-2',
-      color: '#F6BD16',
-      children: [{
-          label: '1年级',
-          id: '0-2-1',
-        },
-        {
-          label: '2年级',
-          id: '0-2-2',
-        },
-      ],
-    },
-    {
-      label: '初中',
-      id: '0-3',
-      color: '#269A99',
-      children: [{
-          label: '初一',
-          id: '0-3-1',
-        },
-        {
-          label: '初二',
-          id: '0-3-2',
-        },
-      ],
-    },
-    {
-      label: '高中',
-      id: '0-4',
-      color: '#269A99',
-      children: [{
-          label: '高一',
-          id: '0-4-1',
-        },
-        {
-          label: '高二',
-          id: '0-4-2',
-        },
-      ],
-    },
-  ],
 };
+
+const JSONDATA = []
+JSONDATA.push(rawData)
 
 G6.registerNode(
   'dice-mind-map-root', {
@@ -214,6 +175,8 @@ G6.registerBehavior('dice-mindmap', {
     const name = evt.target.get('action');
     switch (name) {
       case 'add':
+        console.log(rawData)
+        console.log(model)
         const newId =
           model.id +
           '-' +
@@ -231,9 +194,38 @@ G6.registerBehavior('dice-mindmap', {
             color: model.color || colorArr[Math.floor(Math.random() * colorArr.length)],
           }, ]),
         });
+        let newNode = {
+            id: newId,
+            direction: newId.charCodeAt(newId.length - 1) % 2 === 0 ? 'right' : 'left',
+            label: 'New',
+            type: 'dice-mind-map-leaf',
+            color: model.color || colorArr[Math.floor(Math.random() * colorArr.length)],
+          }
+        
+        JSONDATA.push(newNode)
+        let mydata= document.getElementById('mydata')
+        
+        console.log(mydata)
+        let mydata2=JSON.stringify(JSONDATA)
+        localStorage.setItem("mydata", mydata2);
+        console.log(localStorage.getItem("mydata"))
+        mydata.innerText=mydata2
+        
+
+        console.log(mydata.innerText)
+        // console.log(mydata2)
+        // if(btn === false){
+          let exportBtn = document.createElement('div')
+          exportBtn.innerText = "Export DATA"
+          exportBtn.classList.add("exportbtn")
+          document.body.appendChild(exportBtn)
+          btn = true
+        // }
         evt.currentTarget.layout(false);
         break;
       case 'delete':
+      console.log(rawData)
+
         const parent = evt.item.get('parent');
         evt.currentTarget.updateItem(parent, {
           children: (parent.get('model').children || []).filter((e) => e.id !== model.id),
